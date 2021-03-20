@@ -13,7 +13,7 @@ import Prelude
 import Effect (Effect)
 import Foreign (Foreign)
 import Erl.MessageRouting as MR
-import Erl.Process.Raw (Pid, class HasRawPid, getRawPid)
+import Erl.Process.Raw (Pid, class HasPid, getPid)
 
 foreign import startMonitor :: Pid -> Effect MonitorRef
 foreign import stopMonitor :: MonitorRef -> Effect Unit
@@ -35,9 +35,9 @@ data MonitorType = Process | Port
 
 data MonitorMsg = Down (MR.RouterRef MonitorRef) MonitorType MonitorObject MonitorInfo
 
-monitor :: forall process. HasRawPid process => process -> (MonitorMsg -> Effect Unit) -> Effect (MR.RouterRef MonitorRef)
+monitor :: forall process. HasPid process => process -> (MonitorMsg -> Effect Unit) -> Effect (MR.RouterRef MonitorRef)
 monitor process cb =
-  MR.startRouter (startMonitor $ getRawPid process) stopMonitor handleMessage
+  MR.startRouter (startMonitor $ getPid process) stopMonitor handleMessage
 
   where
     handleMessage msg = do
